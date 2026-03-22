@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Balloon Road Simulation</title>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+        background: #9bc5ff;
+      }
+
+      canvas {
+        display: block;
+      }
+
+      #hud {
+        position: fixed;
+        top: 14px;
+        left: 14px;
+        z-index: 20;
+        color: #eef7ff;
+        background: rgba(8, 18, 33, 0.45);
+        border: 1px solid rgba(206, 229, 255, 0.28);
+        border-radius: 12px;
+        padding: 10px 14px;
+        min-width: 260px;
+        backdrop-filter: blur(3px);
+      }
+
+      #status {
+        font-size: 14px;
+        letter-spacing: 0.2px;
+      }
+
+      #distance {
+        margin-top: 4px;
+        font-size: 13px;
+        opacity: 0.92;
+      }
+
+      #overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 30;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle, rgba(7, 21, 40, 0.42) 0%, rgba(5, 14, 28, 0.7) 100%);
+        color: #f2f8ff;
+        text-align: center;
+        padding: 24px;
+        cursor: pointer;
+      }
+
+      #overlay.hidden {
+        display: none;
+      }
+
+      #overlay-card {
+        max-width: 560px;
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid rgba(216, 234, 255, 0.28);
+        background: rgba(11, 26, 47, 0.62);
+      }
+
+      #overlay h1 {
+        margin: 0 0 10px;
+        font-size: 27px;
+        font-weight: 700;
+      }
+
+      #overlay p {
+        margin: 4px 0;
+        font-size: 15px;
+        line-height: 1.5;
+      }
+
+      #crosshair {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        width: 16px;
+        height: 16px;
+        margin-left: -8px;
+        margin-top: -8px;
+        z-index: 15;
+        pointer-events: none;
+      }
+
+      #crosshair::before,
+      #crosshair::after {
+        content: "";
+        position: absolute;
+        background: rgba(230, 245, 255, 0.75);
+      }
+
+      #crosshair::before {
+        left: 7px;
+        top: 0;
+        width: 2px;
+        height: 16px;
+      }
+
+      #crosshair::after {
+        left: 0;
+        top: 7px;
+        width: 16px;
+        height: 2px;
+      }
+
+      #game-over {
+        margin-top: 12px;
+        font-size: 18px;
+        font-weight: 700;
+        color: #ffe8c1;
+        display: none;
+      }
+
+      #game-over.show {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="hud">
+      <div id="status">Walk to the hot-air balloon in the distance.</div>
+      <div id="distance">Distance to balloon: --</div>
+      <div id="game-over">Game Over - Press R to restart.</div>
+    </div>
+
+    <div id="overlay">
+      <div id="overlay-card">
+        <h1 id="overlay-title">Balloon Road Simulation</h1>
+        <p>Click anywhere to lock mouse and start walking.</p>
+        <p>WASD = move, Shift = sprint, T = teleport near balloon</p>
+        <p>If mouse lock is blocked, hold left mouse and drag to look.</p>
+        <p>Reach the balloon, walk up the stairs into the lobby, then watch it leave.</p>
+      </div>
+    </div>
+
+    <div id="crosshair"></div>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
