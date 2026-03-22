@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Balloon Road Simulation</title>
+    <title>Skyscraper Ragdoll Run</title>
     <style>
       :root {
-        color-scheme: light;
+        color-scheme: dark;
       }
 
       * {
@@ -20,7 +20,7 @@
         height: 100%;
         overflow: hidden;
         font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-        background: #9bc5ff;
+        background: #0f2033;
       }
 
       canvas {
@@ -32,38 +32,88 @@
         top: 14px;
         left: 14px;
         z-index: 20;
-        color: #eef7ff;
-        background: rgba(8, 18, 33, 0.45);
-        border: 1px solid rgba(206, 229, 255, 0.28);
-        border-radius: 12px;
-        padding: 10px 14px;
-        min-width: 260px;
-        backdrop-filter: blur(3px);
+        min-width: 300px;
+        max-width: 420px;
+        border-radius: 14px;
+        border: 1px solid rgba(200, 230, 255, 0.25);
+        background: rgba(8, 20, 34, 0.55);
+        color: #ecf7ff;
+        padding: 12px 14px;
+        backdrop-filter: blur(4px);
+      }
+
+      #title {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
       }
 
       #status {
+        margin-top: 8px;
         font-size: 14px;
-        letter-spacing: 0.2px;
       }
 
-      #distance {
-        margin-top: 4px;
-        font-size: 13px;
-        opacity: 0.92;
+      #controls {
+        margin-top: 8px;
+        font-size: 12px;
+        opacity: 0.95;
+        line-height: 1.45;
+      }
+
+      #day-night-toggle {
+        position: fixed;
+        top: 14px;
+        right: 14px;
+        z-index: 30;
+        border: 1px solid rgba(204, 231, 255, 0.3);
+        background: rgba(10, 26, 45, 0.75);
+        color: #ebf7ff;
+        border-radius: 999px;
+        padding: 10px 14px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      #day-night-toggle:hover {
+        background: rgba(18, 37, 58, 0.88);
+      }
+
+      #reticle {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      #reticle::before,
+      #reticle::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        background: rgba(230, 245, 255, 0.7);
+        transform: translate(-50%, -50%);
+      }
+
+      #reticle::before {
+        width: 12px;
+        height: 2px;
+      }
+
+      #reticle::after {
+        width: 2px;
+        height: 12px;
       }
 
       #overlay {
         position: fixed;
         inset: 0;
-        z-index: 30;
+        z-index: 40;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: radial-gradient(circle, rgba(7, 21, 40, 0.42) 0%, rgba(5, 14, 28, 0.7) 100%);
-        color: #f2f8ff;
-        text-align: center;
-        padding: 24px;
-        cursor: pointer;
+        background: radial-gradient(circle at center, rgba(13, 27, 46, 0.35), rgba(3, 10, 20, 0.85));
+        color: #eef8ff;
       }
 
       #overlay.hidden {
@@ -71,90 +121,49 @@
       }
 
       #overlay-card {
-        max-width: 560px;
-        padding: 20px;
-        border-radius: 16px;
-        border: 1px solid rgba(216, 234, 255, 0.28);
-        background: rgba(11, 26, 47, 0.62);
+        max-width: 620px;
+        border-radius: 18px;
+        border: 1px solid rgba(199, 226, 255, 0.3);
+        background: rgba(7, 22, 38, 0.7);
+        padding: 22px;
+        text-align: center;
       }
 
       #overlay h1 {
-        margin: 0 0 10px;
-        font-size: 27px;
-        font-weight: 700;
+        margin: 0;
+        font-size: 30px;
       }
 
       #overlay p {
-        margin: 4px 0;
-        font-size: 15px;
-        line-height: 1.5;
-      }
-
-      #crosshair {
-        position: fixed;
-        left: 50%;
-        top: 50%;
-        width: 16px;
-        height: 16px;
-        margin-left: -8px;
-        margin-top: -8px;
-        z-index: 15;
-        pointer-events: none;
-      }
-
-      #crosshair::before,
-      #crosshair::after {
-        content: "";
-        position: absolute;
-        background: rgba(230, 245, 255, 0.75);
-      }
-
-      #crosshair::before {
-        left: 7px;
-        top: 0;
-        width: 2px;
-        height: 16px;
-      }
-
-      #crosshair::after {
-        left: 0;
-        top: 7px;
-        width: 16px;
-        height: 2px;
-      }
-
-      #game-over {
-        margin-top: 12px;
-        font-size: 18px;
-        font-weight: 700;
-        color: #ffe8c1;
-        display: none;
-      }
-
-      #game-over.show {
-        display: block;
+        margin: 10px 0 0;
+        line-height: 1.45;
+        opacity: 0.95;
       }
     </style>
   </head>
   <body>
     <div id="hud">
-      <div id="status">Walk to the hot-air balloon in the distance.</div>
-      <div id="distance">Distance to balloon: --</div>
-      <div id="game-over">Game Over - Press R to restart.</div>
-    </div>
-
-    <div id="overlay">
-      <div id="overlay-card">
-        <h1 id="overlay-title">Balloon Road Simulation</h1>
-        <p>Click anywhere to lock mouse and start walking.</p>
-        <p>WASD = move, Shift = sprint, T = teleport near balloon</p>
-        <p>If mouse lock is blocked, hold left mouse and drag to look.</p>
-        <p>Reach the balloon, walk up the stairs into the lobby, then watch it leave.</p>
+      <h2 id="title">Skyscraper Ragdoll Run</h2>
+      <div id="status">Climb the stairs to the rooftop, then ragdoll and fall.</div>
+      <div id="controls">
+        WASD = move, Shift = sprint, hold left mouse drag = orbit camera, F = ragdoll, R = respawn
       </div>
     </div>
 
-    <div id="crosshair"></div>
+    <button id="day-night-toggle" type="button">Toggle Night</button>
 
-    <script type="module" src="./main.js"></script>
+    <div id="reticle"></div>
+
+    <div id="overlay">
+      <div id="overlay-card">
+        <h1>Skyscraper Ragdoll Run</h1>
+        <p>A third-person physics playground with a very high tower.</p>
+        <p>Walk inside and climb the interior stairs, or step onto the floor teleport pad to go straight to the top.</p>
+        <p>When ready, press <strong>F</strong> to turn your humanoid into a full ragdoll and watch the fall.</p>
+        <p>Click to start.</p>
+      </div>
+    </div>
+
+    <script type="module" src="./main.js?v=20260322-2"></script>
   </body>
 </html>
